@@ -1,0 +1,285 @@
+Build a Luxury E-Commerce Website for “Twinkle Star Gold & Diamonds”
+
+Create a complete, premium, modern, fully responsive e-commerce website for the brand:
+Twinkle Star Gold & Diamonds
+A luxury gold & diamond product company inspired by MMTC-PAMP, but with an even more premium, high-end, creative, and visually captivating design.
+
+🎨 DESIGN & BRANDING GUIDELINES
+
+Brand Vibe:
+
+Luxury, Premium, Trustworthy, High-Status
+
+Modern + Elegant + Stylish
+
+High attention to visual feel, spacing, animations, and polished UI.
+
+Color Palette:
+
+Primary: Rich Dark tones (#0C0C0C / #111111)
+
+Secondary: Metallic Gold (#D4AF37), Metallic Silver (#C0C0C0)
+
+Accents: White, Warm Gray
+
+Typography:
+
+Modern elegant fonts (Serif + Sans combination)
+
+Premium heading font (e.g., Playfair Display / Cinzel / Cormorant)
+
+Clean sans-serif for body (e.g., Inter / Poppins / Urbanist)
+
+Layout Style:
+
+Highly visual Grid Layout
+
+Strong margins, large hero sections, clean spacing
+
+Product grids similar to MMTC-PAMP but more artistic
+
+Animations:
+
+Smooth fade-ins
+
+Metallic glows
+
+Hover shine effects
+
+Parallax on banners
+
+Subtle movement on hero sections
+
+Logo:
+
+User already has a logo. Integrate it in header + hero.
+
+🧱 REQUIRED PAGES & FEATURES
+
+Recreate all functionality from MMTC-PAMP but enhanced:
+
+1️⃣ Home Page – “The Present” (Premium Hero Layout)
+
+Hero Section:
+
+Right side: “This Guy’s Cost Ratio” UI box (premium, gold-lined frame)
+
+Center: Carousel of all featured products (gold coins, bars, jewelry, diamonds)
+
+Smooth transitions + metallic glow
+
+Dark luxury background
+
+Sections:
+
+“Why Trust Twinkle Star” → Premium refinery-quality assurance
+
+“Our Best Sellers” → Grid product showcase
+
+“Featured Categories” → Gold | Silver | Diamonds | Coins | Bars
+
+User reviews / Trust indicators
+
+Premium brand story like MMTC-PAMP’s “Who We Are” but more modern
+
+Footer with gold accents
+
+Filters on Home Page:
+
+Price
+
+Weight
+
+Metal Type (Gold, Silver, Diamond)
+
+Purity
+
+Category (Coins, Bars, Jewelry, etc.)
+
+2️⃣ Products / Collections Page
+
+Page Requirements:
+
+Grid layout inspired by MMTC-PAMP
+
+High-quality product cards
+
+Hover animation (shine, elevate)
+
+Filters & Sorting (mandatory):
+
+Metal type
+
+Category
+
+Purity
+
+Weight
+
+Price range slider
+
+Occasion (Festival, Special Days, Gifting)
+
+Components:
+
+Sticky left filter bar
+
+Right side → product gallery grid
+
+Pagination or infinite scroll
+
+Fast load, premium transitions
+
+3️⃣ Individual Product Details Page
+
+Top Section:
+
+Large product image gallery
+
+Zoom + 360° view (AI can generate)
+
+Title, purity, weight, SKU, price
+
+GST & breakdown section like MMTC-PAMP
+
+Add to Cart button
+
+“Login before buying” logic
+
+Trust seals
+
+Middle Section:
+
+Product description
+
+Benefits / Unique features
+
+Certification info
+
+What makes it premium
+
+Bottom Section (Mandatory):
+
+Special Offers / Festival Offers (like MMTC-PAMP seasonal banners)
+
+Related products
+
+Footer
+
+4️⃣ Cart + Checkout Page
+
+Flow Requirements:
+
+User can add to cart without login
+
+During checkout → “Login Required” modal
+
+Coupon / Festival Discounts
+
+Price breakdown
+
+Delivery expectations
+
+Razorpay-style payment UI
+
+Clean & modern
+
+5️⃣ Contact Us Page
+
+Sections:
+
+Premium contact form
+
+Integrated Google Map
+
+WhatsApp button
+
+Support email + phone
+
+Inquiry categories (Gold, Diamonds, Custom Orders)
+
+🔧 SITE-WIDE FUNCTIONALITY
+
+Header:
+
+Logo on left
+
+Menu: Home | Products | Collections | About | Offers | Contact
+
+Cart icon
+
+Login/Register
+
+Footer:
+
+Luxury gold-accented footer
+
+Social links
+
+Certifications
+
+Hallmark guarantee section
+
+Quick links
+
+Other Features:
+
+CMS for product management
+
+Search bar with predictive suggestions
+
+SEO tags auto-generated
+
+Fully mobile-friendly
+
+Fast loading
+
+Smooth animations everywhere
+
+Sticky filters on product pages
+
+✨ OVERALL FEEL OF THE WEBSITE
+
+The site must look like:
+
+A blend of MMTC-PAMP, Tanishq Privé, and Swiss luxury gold brands
+
+High-end jewelry boutique aesthetic
+
+Dark luxury theme with metallic gold & silver highlights
+
+A modern, interactive, and premium online gold-shopping experience
+
+Emphasis:
+
+Trust
+
+Premium quality
+
+Certified purity
+
+Luxury shopping experience
+
+🚀 FINAL OUTPUT FROM THE AI SHOULD INCLUDE
+
+Full front-end + back-end
+
+All pages listed above
+
+Complete product filtering system
+
+Fully generated responsive UI
+
+Dummy products inserted
+
+Admin panel (optional)
+
+Login / Authentication
+
+Shopping cart + checkout logic
+
+SEO + meta tags
+
+All animations + transitions
+
+Pixel-perfect luxury UI
