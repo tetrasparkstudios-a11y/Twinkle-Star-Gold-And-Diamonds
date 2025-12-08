@@ -54,11 +54,18 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Badges */}
-        {product.isNew && (
-          <span className="absolute top-3 left-3 bg-gold text-black text-[10px] font-bold px-2 py-1 uppercase tracking-widest">
-            New
-          </span>
-        )}
+        <div className="absolute top-3 left-3 flex flex-col gap-2 items-start">
+          {product.isNew && (
+            <span className="bg-gold text-black text-[10px] font-bold px-2 py-1 uppercase tracking-widest shadow-sm">
+              New
+            </span>
+          )}
+          {product.tags && product.tags.map((tag, index) => (
+            <span key={index} className="bg-black/70 backdrop-blur-sm text-white border border-white/20 text-[10px] font-bold px-2 py-1 uppercase tracking-widest shadow-sm">
+              {tag}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Info */}

@@ -16,6 +16,7 @@ export interface Product {
   description: string;
   specifications?: Record<string, string>;
   shippingInfo?: string;
+  tags?: string[];
 }
 
 export const products: Product[] = [
@@ -36,7 +37,8 @@ export const products: Product[] = [
       "Gender": "Women",
       "Occasion": "Wedding"
     },
-    shippingInfo: "Free insured shipping across India. Delivery within 5-7 business days. Easy returns within 15 days of delivery for unworn items with original tags."
+    shippingInfo: "Free insured shipping across India. Delivery within 5-7 business days. Easy returns within 15 days of delivery for unworn items with original tags.",
+    tags: ["Bestseller", "Trending"]
   },
   {
     id: "2",

@@ -236,6 +236,8 @@ function ProductDialog({
 }) {
   const { addProduct, updateProduct } = useShop();
   const [specs, setSpecs] = useState<Record<string, string>>(product?.specifications || { "Brand": "Twinkle Star" });
+  const [tags, setTags] = useState<string[]>(product?.tags || []);
+  const [newTag, setNewTag] = useState("");
   
   // Reset specs when product changes (edit vs add)
   // Note: In a real app use useEffect, but for simplicity we'll just initialize or assume user resets manually if switching quickly without close
@@ -252,6 +254,17 @@ function ProductDialog({
     const newSpecs = { ...specs };
     delete newSpecs[key];
     setSpecs(newSpecs);
+  };
+
+  const handleAddTag = () => {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      setTags([...tags, newTag.trim()]);
+      setNewTag("");
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
   };
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -275,7 +288,8 @@ function ProductDialog({
       image: product?.image || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800",
       isNew: formData.get("isNew") === "on",
       shippingInfo: formData.get("shippingInfo"),
-      specifications: cleanSpecs
+      specifications: cleanSpecs,
+      tags: tags
     };
 
     if (product) {
@@ -347,6 +361,34 @@ function ProductDialog({
                 name="shippingInfo" 
                 defaultValue={product?.shippingInfo || "Free insured shipping across India. Delivery within 5-7 business days. Easy returns within 15 days."} 
               />
+            </div>
+
+            <div className="col-span-2 space-y-4 border border-white/10 p-4 rounded-md bg-secondary/10">
+              <Label>Product Tags</Label>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="Add a tag (e.g. Bestseller, Trending)" 
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                />
+                <Button type="button" onClick={handleAddTag} variant="secondary">Add</Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {tags.map((tag) => (
+                  <span key={tag} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gold/20 text-gold border border-gold/30">
+                    {tag}
+                    <button type="button" onClick={() => removeTag(tag)} className="ml-1 hover:text-white">
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
 
             <div className="col-span-2 space-y-4 border border-white/10 p-4 rounded-md bg-secondary/10">
