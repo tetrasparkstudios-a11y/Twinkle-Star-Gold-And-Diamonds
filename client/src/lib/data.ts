@@ -14,6 +14,8 @@ export interface Product {
   weight: string;
   purity: string;
   description: string;
+  specifications?: Record<string, string>;
+  shippingInfo?: string;
 }
 
 export const products: Product[] = [
@@ -27,7 +29,14 @@ export const products: Product[] = [
     isNew: true,
     weight: "22g",
     purity: "22K",
-    description: "A masterpiece of craftsmanship, this heritage gold necklace features intricate detailing inspired by royal courts. Perfect for weddings and special occasions."
+    description: "A masterpiece of craftsmanship, this heritage gold necklace features intricate detailing inspired by royal courts. Perfect for weddings and special occasions.",
+    specifications: {
+      "Brand": "Twinkle Star",
+      "Collection": "Royal Heritage",
+      "Gender": "Women",
+      "Occasion": "Wedding"
+    },
+    shippingInfo: "Free insured shipping across India. Delivery within 5-7 business days. Easy returns within 15 days of delivery for unworn items with original tags."
   },
   {
     id: "2",

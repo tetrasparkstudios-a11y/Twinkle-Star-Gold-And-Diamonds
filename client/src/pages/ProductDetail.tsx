@@ -169,26 +169,36 @@ export default function ProductDetail() {
                 <AccordionTrigger>Specifications</AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between py-1 border-b border-white/5">
-                      <span className="text-muted-foreground">Brand</span>
-                      <span>Twinkle Star</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-white/5">
-                      <span className="text-muted-foreground">Collection</span>
-                      <span>Royal Heritage</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-white/5">
-                      <span className="text-muted-foreground">Gender</span>
-                      <span>Women</span>
-                    </div>
+                    {product.specifications ? (
+                      Object.entries(product.specifications).map(([key, value]) => (
+                        <div key={key} className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-muted-foreground">{key}</span>
+                          <span>{value}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-muted-foreground">Brand</span>
+                          <span>Twinkle Star</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-muted-foreground">Collection</span>
+                          <span>Royal Heritage</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-white/5">
+                          <span className="text-muted-foreground">Gender</span>
+                          <span>Women</span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="shipping">
                 <AccordionTrigger>Shipping & Returns</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-sm">
-                  Free insured shipping across India. Delivery within 5-7 business days. 
-                  Easy returns within 15 days of delivery for unworn items with original tags.
+                  {product.shippingInfo || "Free insured shipping across India. Delivery within 5-7 business days. Easy returns within 15 days of delivery for unworn items with original tags."}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

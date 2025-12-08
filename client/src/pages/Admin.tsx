@@ -22,14 +22,92 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Admin() {
   const { products, addProduct, updateProduct, deleteProduct } = useShop();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  
+  // Auth State
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { toast } = useToast();
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email === "admin@twinklestar.com" && password === "admin123") {
+      setIsAuthenticated(true);
+      toast({
+        title: "Login Successful",
+        description: "Welcome back, Admin!",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: "Invalid email or password.",
+      });
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <Layout>
+        <div className="min-h-[80vh] flex items-center justify-center p-4">
+          <Card className="w-full max-w-md bg-card border-white/10">
+            <CardHeader className="space-y-1 text-center">
+              <div className="flex justify-center mb-4">
+                <div className="p-3 rounded-full bg-gold/10 text-gold">
+                  <Lock className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className="text-2xl font-display">Admin Access</CardTitle>
+              <CardDescription>Enter your credentials to manage the catalog</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="admin@twinklestar.com" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    placeholder="••••••••" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required 
+                  />
+                </div>
+                <Button type="submit" className="w-full bg-gold text-black hover:bg-gold/90">
+                  Login
+                </Button>
+                <div className="text-center text-xs text-muted-foreground mt-4">
+                  <p>Demo Credentials:</p>
+                  <p>Email: admin@twinklestar.com</p>
+                  <p>Password: admin123</p>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
 
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -61,9 +139,12 @@ export default function Admin() {
               <h1 className="text-3xl font-display font-bold">Admin Dashboard</h1>
               <p className="text-muted-foreground">Manage your product catalog</p>
             </div>
-            <Button onClick={handleAddNew} className="bg-gold text-black hover:bg-gold/90">
-              <Plus className="mr-2 h-4 w-4" /> Add Product
-            </Button>
+            <div className="flex gap-4">
+              <Button variant="outline" onClick={() => setIsAuthenticated(false)}>Logout</Button>
+              <Button onClick={handleAddNew} className="bg-gold text-black hover:bg-gold/90">
+                <Plus className="mr-2 h-4 w-4" /> Add Product
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -154,12 +235,35 @@ function ProductDialog({
   product: Product | null; 
 }) {
   const { addProduct, updateProduct } = useShop();
+  const [specs, setSpecs] = useState<Record<string, string>>(product?.specifications || { "Brand": "Twinkle Star" });
   
-  // Form handling simple state for mockup
+  // Reset specs when product changes (edit vs add)
+  // Note: In a real app use useEffect, but for simplicity we'll just initialize or assume user resets manually if switching quickly without close
+  
+  const handleSpecChange = (key: string, value: string) => {
+    setSpecs(prev => ({ ...prev, [key]: value }));
+  };
+
+  const addSpec = () => {
+    setSpecs(prev => ({ ...prev, "": "" }));
+  };
+
+  const removeSpec = (key: string) => {
+    const newSpecs = { ...specs };
+    delete newSpecs[key];
+    setSpecs(newSpecs);
+  };
+  
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
+    // Process specs to remove empty keys
+    const cleanSpecs: Record<string, string> = {};
+    Object.entries(specs).forEach(([k, v]) => {
+      if (k.trim()) cleanSpecs[k] = v;
+    });
+
     const productData: any = {
       name: formData.get("name"),
       category: formData.get("category"),
@@ -168,8 +272,10 @@ function ProductDialog({
       description: formData.get("description"),
       weight: formData.get("weight"),
       purity: formData.get("purity"),
-      image: product?.image || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800", // Placeholder for new images
+      image: product?.image || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800",
       isNew: formData.get("isNew") === "on",
+      shippingInfo: formData.get("shippingInfo"),
+      specifications: cleanSpecs
     };
 
     if (product) {
@@ -182,7 +288,7 @@ function ProductDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] bg-card border-white/10 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] bg-card border-white/10 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{product ? "Edit Product" : "Add New Product"}</DialogTitle>
         </DialogHeader>
@@ -232,6 +338,53 @@ function ProductDialog({
             <div className="space-y-2 col-span-2">
               <Label htmlFor="description">Description</Label>
               <Textarea id="description" name="description" defaultValue={product?.description} required />
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <Label htmlFor="shippingInfo">Shipping & Returns Info</Label>
+              <Textarea 
+                id="shippingInfo" 
+                name="shippingInfo" 
+                defaultValue={product?.shippingInfo || "Free insured shipping across India. Delivery within 5-7 business days. Easy returns within 15 days."} 
+              />
+            </div>
+
+            <div className="col-span-2 space-y-4 border border-white/10 p-4 rounded-md bg-secondary/10">
+              <div className="flex justify-between items-center">
+                <Label>Specifications</Label>
+                <Button type="button" variant="ghost" size="sm" onClick={addSpec} className="h-6 text-xs border border-white/20">
+                  <Plus className="h-3 w-3 mr-1" /> Add Field
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {Object.entries(specs).map(([key, value], index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <Input 
+                      placeholder="Label (e.g. Brand)" 
+                      value={key} 
+                      onChange={(e) => {
+                        const newKey = e.target.value;
+                        const newSpecs = { ...specs };
+                        delete newSpecs[key];
+                        newSpecs[newKey] = value;
+                        setSpecs(newSpecs);
+                      }}
+                      className="h-8 text-xs w-1/3"
+                    />
+                    <Input 
+                      placeholder="Value" 
+                      value={value} 
+                      onChange={(e) => {
+                        setSpecs({ ...specs, [key]: e.target.value });
+                      }}
+                      className="h-8 text-xs flex-1"
+                    />
+                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={() => removeSpec(key)}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
             
             <div className="flex items-center space-x-2 col-span-2">
