@@ -238,6 +238,10 @@ function ProductDialog({
   const [specs, setSpecs] = useState<Record<string, string>>(product?.specifications || { "Brand": "Twinkle Star" });
   const [tags, setTags] = useState<string[]>(product?.tags || []);
   const [newTag, setNewTag] = useState("");
+  const [gallery, setGallery] = useState<string[]>(product?.gallery || []);
+  const [videos, setVideos] = useState<string[]>(product?.videos || []);
+  const [newGalleryUrl, setNewGalleryUrl] = useState("");
+  const [newVideoUrl, setNewVideoUrl] = useState("");
   
   // Reset specs when product changes (edit vs add)
   // Note: In a real app use useEffect, but for simplicity we'll just initialize or assume user resets manually if switching quickly without close
@@ -266,6 +270,28 @@ function ProductDialog({
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
+
+  const handleAddGallery = () => {
+    if (newGalleryUrl.trim()) {
+      setGallery([...gallery, newGalleryUrl.trim()]);
+      setNewGalleryUrl("");
+    }
+  };
+
+  const removeGallery = (index: number) => {
+    setGallery(gallery.filter((_, i) => i !== index));
+  };
+
+  const handleAddVideo = () => {
+    if (newVideoUrl.trim()) {
+      setVideos([...videos, newVideoUrl.trim()]);
+      setNewVideoUrl("");
+    }
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos(videos.filter((_, i) => i !== index));
+  };
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -289,7 +315,9 @@ function ProductDialog({
       isNew: formData.get("isNew") === "on",
       shippingInfo: formData.get("shippingInfo"),
       specifications: cleanSpecs,
-      tags: tags
+      tags: tags,
+      gallery: gallery,
+      videos: videos
     };
 
     if (product) {
@@ -302,12 +330,13 @@ function ProductDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] bg-card border-white/10 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] bg-card border-white/10 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{product ? "Edit Product" : "Add New Product"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6 py-4">
           <div className="grid grid-cols-2 gap-4">
+            {/* ... existing fields ... */}
             <div className="space-y-2 col-span-2">
               <Label htmlFor="name">Product Name</Label>
               <Input id="name" name="name" defaultValue={product?.name} required />
@@ -361,6 +390,62 @@ function ProductDialog({
                 name="shippingInfo" 
                 defaultValue={product?.shippingInfo || "Free insured shipping across India. Delivery within 5-7 business days. Easy returns within 15 days."} 
               />
+            </div>
+
+            {/* Gallery Section */}
+            <div className="col-span-2 space-y-4 border border-white/10 p-4 rounded-md bg-secondary/10">
+              <Label>Product Gallery (Images)</Label>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="Image URL (https://...)" 
+                  value={newGalleryUrl}
+                  onChange={(e) => setNewGalleryUrl(e.target.value)}
+                />
+                <Button type="button" onClick={handleAddGallery} variant="secondary">Add</Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {gallery.map((url, index) => (
+                  <div key={index} className="relative group">
+                    <div className="h-16 w-16 rounded overflow-hidden border border-white/20">
+                      <img src={url} alt="Gallery" className="h-full w-full object-cover" />
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => removeGallery(index)} 
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Videos Section */}
+            <div className="col-span-2 space-y-4 border border-white/10 p-4 rounded-md bg-secondary/10">
+              <Label>Product Videos</Label>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="Video URL (https://...)" 
+                  value={newVideoUrl}
+                  onChange={(e) => setNewVideoUrl(e.target.value)}
+                />
+                <Button type="button" onClick={handleAddVideo} variant="secondary">Add</Button>
+              </div>
+              <div className="flex flex-col gap-2 mt-2">
+                {videos.map((url, index) => (
+                  <div key={index} className="flex items-center justify-between bg-background/50 p-2 rounded border border-white/10">
+                    <span className="text-xs truncate max-w-[200px]">{url}</span>
+                    <button 
+                      type="button" 
+                      onClick={() => removeVideo(index)} 
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="col-span-2 space-y-4 border border-white/10 p-4 rounded-md bg-secondary/10">

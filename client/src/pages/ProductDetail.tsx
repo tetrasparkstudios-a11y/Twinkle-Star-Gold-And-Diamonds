@@ -4,12 +4,13 @@ import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Star, Truck, ShieldCheck, RefreshCw, Heart, Share2, MessageCircle } from "lucide-react";
+import { Star, Truck, ShieldCheck, RefreshCw, Heart, Share2, MessageCircle, Play } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { ProductZoom } from "@/components/product/ProductZoom";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -18,6 +19,10 @@ export default function ProductDetail() {
   const product = products.find(p => p.id === id);
   const [quantity, setQuantity] = useState(1);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  // Media State
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
+  const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
 
   if (!product) {
     return (
@@ -31,9 +36,22 @@ export default function ProductDetail() {
   }
 
   const isWishlisted = isInWishlist(product.id);
+  
+  // Combined gallery source
+  const images = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image];
+  const videos = product.videos || [];
+  const totalMedia = [...images, ...videos];
+
+  const handleMediaSelect = (index: number) => {
+    setSelectedMediaIndex(index);
+    if (index < images.length) {
+      setMediaType('image');
+    } else {
+      setMediaType('video');
+    }
+  };
 
   const handleAddToCart = () => {
-    // Mock add to cart logic
     alert(`Added ${quantity} ${product.name} to cart`);
   };
 
@@ -47,13 +65,25 @@ export default function ProductDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           {/* Left: Image Gallery */}
           <div className="space-y-4">
-            <div className="aspect-square bg-secondary/20 rounded-sm overflow-hidden border border-white/5 relative group">
-              <img 
-                src={product.image} 
-                alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute top-4 right-4 flex flex-col gap-2">
+            <div className="aspect-square bg-secondary/20 rounded-sm overflow-hidden border border-white/5 relative group bg-white/5">
+              {mediaType === 'image' ? (
+                <ProductZoom 
+                  src={totalMedia[selectedMediaIndex]} 
+                  alt={product.name} 
+                  className="w-full h-full"
+                />
+              ) : (
+                <video 
+                  src={totalMedia[selectedMediaIndex]} 
+                  className="w-full h-full object-cover"
+                  controls
+                  autoPlay
+                  loop
+                  muted
+                />
+              )}
+              
+              <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
                 <Button 
                   size="icon" 
                   variant="secondary" 
@@ -70,12 +100,31 @@ export default function ProductDetail() {
                 </Button>
               </div>
             </div>
+            
             <div className="grid grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="aspect-square bg-secondary/20 rounded-sm overflow-hidden cursor-pointer border border-transparent hover:border-gold transition-colors">
-                  <img src={product.image} alt="Thumbnail" className="w-full h-full object-cover" />
-                </div>
-              ))}
+              {totalMedia.map((media, i) => {
+                const isVideo = i >= images.length;
+                return (
+                  <div 
+                    key={i} 
+                    className={cn(
+                      "aspect-square bg-secondary/20 rounded-sm overflow-hidden cursor-pointer border transition-all duration-200 relative",
+                      selectedMediaIndex === i ? "border-gold ring-1 ring-gold/50" : "border-transparent hover:border-gold/50"
+                    )}
+                    onClick={() => handleMediaSelect(i)}
+                  >
+                    {isVideo ? (
+                      <div className="w-full h-full flex items-center justify-center bg-black/50">
+                        <Play className="h-8 w-8 text-white opacity-80" />
+                        {/* Assuming video thumbnail is not available, we use a generic placeholder or the video itself muted */}
+                        <video src={media} className="absolute inset-0 w-full h-full object-cover opacity-50 -z-10" />
+                      </div>
+                    ) : (
+                      <img src={media} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

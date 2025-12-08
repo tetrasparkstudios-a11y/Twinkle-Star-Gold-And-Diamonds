@@ -17,6 +17,8 @@ export interface Product {
   specifications?: Record<string, string>;
   shippingInfo?: string;
   tags?: string[];
+  gallery?: string[];
+  videos?: string[];
 }
 
 export const products: Product[] = [
@@ -27,6 +29,8 @@ export const products: Product[] = [
     price: 125000,
     originalPrice: 140000,
     image: necklaceImg,
+    gallery: [necklaceImg, necklaceImg, necklaceImg], // Using same image for mockup
+    videos: [],
     isNew: true,
     weight: "22g",
     purity: "22K",
