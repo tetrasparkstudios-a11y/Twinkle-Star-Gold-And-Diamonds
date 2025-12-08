@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { products } from "@/lib/data";
+import { useShop } from "@/lib/ShopContext";
 import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -9,10 +9,12 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
+  const { products, toggleWishlist, isInWishlist } = useShop();
   const product = products.find(p => p.id === id);
   const [quantity, setQuantity] = useState(1);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -28,16 +30,14 @@ export default function ProductDetail() {
     );
   }
 
+  const isWishlisted = isInWishlist(product.id);
+
   const handleAddToCart = () => {
     // Mock add to cart logic
-    // Typically would check auth here, but requirement says "Add to cart without login"
-    // But checkout requires login.
-    // Let's just show a toast (mock)
     alert(`Added ${quantity} ${product.name} to cart`);
   };
 
   const handleBuyNow = () => {
-    // Requirement: "Login before buying" logic or at checkout
     setShowLoginModal(true);
   };
 
@@ -54,8 +54,16 @@ export default function ProductDetail() {
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute top-4 right-4 flex flex-col gap-2">
-                <Button size="icon" variant="secondary" className="rounded-full hover:bg-red-500 hover:text-white transition-colors">
-                  <Heart className="h-5 w-5" />
+                <Button 
+                  size="icon" 
+                  variant="secondary" 
+                  className={cn(
+                    "rounded-full transition-colors",
+                    isWishlisted ? "bg-red-500 text-white hover:bg-red-600" : "hover:bg-red-500 hover:text-white"
+                  )}
+                  onClick={() => toggleWishlist(product.id)}
+                >
+                  <Heart className={cn("h-5 w-5", isWishlisted && "fill-current")} />
                 </Button>
                 <Button size="icon" variant="secondary" className="rounded-full hover:text-gold transition-colors">
                   <Share2 className="h-5 w-5" />

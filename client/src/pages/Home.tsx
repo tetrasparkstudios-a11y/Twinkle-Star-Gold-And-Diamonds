@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { products } from "@/lib/data";
+import { useShop } from "@/lib/ShopContext";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -8,6 +8,8 @@ import heroBg from "@assets/generated_images/luxury_dark_hero_background_with_go
 import { Link } from "wouter";
 
 export default function Home() {
+  const { products } = useShop();
+
   return (
     <Layout>
       {/* Hero Section */}

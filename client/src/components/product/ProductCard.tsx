@@ -3,12 +3,17 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Heart, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useShop } from "@/lib/ShopContext";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { toggleWishlist, isInWishlist } = useShop();
+  const isWishlisted = isInWishlist(product.id);
+
   return (
     <motion.div 
       className="group relative bg-card border border-transparent hover:border-gold/30 transition-all duration-300 rounded-sm overflow-hidden"
@@ -35,8 +40,16 @@ export function ProductCard({ product }: ProductCardProps) {
               View
             </Button>
           </Link>
-          <Button size="icon" variant="secondary" className="rounded-full hover:bg-red-500 hover:text-white transition-colors">
-            <Heart className="h-4 w-4" />
+          <Button 
+            size="icon" 
+            variant="secondary" 
+            className={cn(
+              "rounded-full transition-colors",
+              isWishlisted ? "bg-red-500 text-white hover:bg-red-600" : "hover:bg-red-500 hover:text-white"
+            )}
+            onClick={() => toggleWishlist(product.id)}
+          >
+            <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
           </Button>
         </div>
 

@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { products } from "@/lib/data";
+import { useShop } from "@/lib/ShopContext";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -13,10 +13,11 @@ import {
   SelectValue, 
 } from "@/components/ui/select";
 import { useState } from "react";
-import { Filter, X } from "lucide-react";
+import { Filter } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Products() {
+  const { products } = useShop();
   const [priceRange, setPriceRange] = useState([0, 500000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   

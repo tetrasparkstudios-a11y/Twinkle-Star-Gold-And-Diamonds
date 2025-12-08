@@ -1,12 +1,14 @@
 import { Link } from "wouter";
-import { Search, ShoppingBag, User, Menu, X, Phone } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { useShop } from "@/lib/ShopContext";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const { wishlist } = useShop();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,6 +59,9 @@ export function Header() {
                       {link.name}
                     </Link>
                   ))}
+                  <Link href="/admin" className="text-lg font-serif text-foreground/80 hover:text-gold transition-colors">
+                    Admin
+                  </Link>
                 </nav>
               </div>
             </SheetContent>
@@ -85,6 +90,13 @@ export function Header() {
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full" />
             </Link>
           ))}
+          <Link
+            href="/admin"
+            className="text-sm font-medium tracking-wide hover:text-gold transition-colors relative group text-muted-foreground"
+          >
+            Admin
+            <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full" />
+          </Link>
         </nav>
 
         {/* Actions */}
@@ -92,9 +104,16 @@ export function Header() {
           <Button variant="ghost" size="icon" className="hidden md:flex hover:text-gold hover:bg-transparent">
             <Search className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="hover:text-gold hover:bg-transparent">
-            <User className="h-5 w-5" />
-          </Button>
+          
+          <Link href="/wishlist">
+            <Button variant="ghost" size="icon" className="hover:text-gold hover:bg-transparent relative">
+              <Heart className="h-5 w-5" />
+              {wishlist.length > 0 && (
+                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
+              )}
+            </Button>
+          </Link>
+
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="hover:text-gold hover:bg-transparent relative">
               <ShoppingBag className="h-5 w-5" />
