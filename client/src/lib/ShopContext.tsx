@@ -1,69 +1,137 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { Product, products as initialProducts } from "./data";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "./queryClient";
+
+export interface Product {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  metalType: string;
+  purity: string;
+  weight: string;
+  price: number;
+  originalPrice?: number | null;
+  currency: string;
+  image: string;
+  images?: string[];
+  gallery?: string[];
+  videos?: string[];
+  stockStatus: string;
+  shortDescription?: string | null;
+  description: string;
+  specifications?: Record<string, string> | null;
+  shippingInfo?: string | null;
+  isFeatured: boolean;
+  isNew: boolean;
+  tags?: string[];
+  festivalOffer?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface ShopContextType {
   products: Product[];
+  isLoading: boolean;
   wishlist: string[];
-  addProduct: (product: Omit<Product, "id">) => void;
-  updateProduct: (id: string, product: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
+  addProduct: (product: Omit<Product, "id" | "slug" | "createdAt" | "updatedAt">) => Promise<void>;
+  updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   toggleWishlist: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
+  refetchProducts: () => void;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 export function ShopProvider({ children }: { children: ReactNode }) {
-  // Initialize from localStorage if available, otherwise use initialProducts
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem("shop_products");
-    return saved ? JSON.parse(saved) : initialProducts;
-  });
-
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
   const [wishlist, setWishlist] = useState<string[]>(() => {
     const saved = localStorage.getItem("shop_wishlist");
     return saved ? JSON.parse(saved) : [];
   });
 
-  const { toast } = useToast();
-
-  useEffect(() => {
-    localStorage.setItem("shop_products", JSON.stringify(products));
-  }, [products]);
-
   useEffect(() => {
     localStorage.setItem("shop_wishlist", JSON.stringify(wishlist));
   }, [wishlist]);
 
-  const addProduct = (newProduct: Omit<Product, "id">) => {
-    const product: Product = {
-      ...newProduct,
-      id: Math.random().toString(36).substr(2, 9),
-    };
-    setProducts((prev) => [...prev, product]);
-    toast({
-      title: "Product Added",
-      description: `${product.name} has been added to the catalog.`,
-    });
+  const { data: products = [], isLoading, refetch } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+  });
+
+  const addMutation = useMutation({
+    mutationFn: async (product: Omit<Product, "id" | "slug" | "createdAt" | "updatedAt">) => {
+      return await apiRequest("POST", "/api/products", product);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({
+        title: "Product Added",
+        description: "Product has been added to the catalog.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add product.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Product> }) => {
+      return await apiRequest("PUT", `/api/products/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({
+        title: "Product Updated",
+        description: "Product details have been updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update product.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest("DELETE", `/api/products/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({
+        title: "Product Deleted",
+        description: "Product has been removed.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete product.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const addProduct = async (product: Omit<Product, "id" | "slug" | "createdAt" | "updatedAt">) => {
+    await addMutation.mutateAsync(product);
   };
 
-  const updateProduct = (id: string, updatedFields: Partial<Product>) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...updatedFields } : p))
-    );
-    toast({
-      title: "Product Updated",
-      description: "Product details have been updated successfully.",
-    });
+  const updateProduct = async (id: string, data: Partial<Product>) => {
+    await updateMutation.mutateAsync({ id, data });
   };
 
-  const deleteProduct = (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-    toast({
-      title: "Product Deleted",
-      description: "Product has been removed from the catalog.",
-    });
+  const deleteProduct = async (id: string) => {
+    await deleteMutation.mutateAsync(id);
   };
 
   const toggleWishlist = (productId: string) => {
@@ -82,12 +150,14 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     <ShopContext.Provider
       value={{
         products,
+        isLoading,
         wishlist,
         addProduct,
         updateProduct,
         deleteProduct,
         toggleWishlist,
         isInWishlist,
+        refetchProducts: refetch,
       }}
     >
       {children}

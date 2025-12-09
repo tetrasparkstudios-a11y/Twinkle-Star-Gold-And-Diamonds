@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { useShop } from "@/lib/ShopContext";
-import { Product } from "@/lib/data";
+import { useShop, Product } from "@/lib/ShopContext";
+import { apiRequest } from "@/lib/queryClient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +23,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Search, Lock } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Lock, Star, MessageSquare } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -34,26 +36,66 @@ export default function Admin() {
   
   // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetch("/api/admin/session", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
+        setIsAuthenticated(data.authenticated);
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "admin@twinklestar.com" && password === "admin123") {
-      setIsAuthenticated(true);
-      toast({
-        title: "Login Successful",
-        description: "Welcome back, Admin!",
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
       });
-    } else {
+      if (res.ok) {
+        setIsAuthenticated(true);
+        toast({
+          title: "Login Successful",
+          description: "Welcome back, Admin!",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: "Invalid email or password.",
+        });
+      }
+    } catch {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: "Invalid email or password.",
+        description: "Something went wrong.",
       });
     }
   };
+
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST", credentials: "include" });
+    setIsAuthenticated(false);
+  };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="min-h-[80vh] flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
