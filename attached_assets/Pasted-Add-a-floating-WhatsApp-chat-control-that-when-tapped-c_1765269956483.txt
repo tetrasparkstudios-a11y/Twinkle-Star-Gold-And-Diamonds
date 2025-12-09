@@ -1,0 +1,32 @@
+Add a floating WhatsApp chat control that, when tapped/clicked, opens a WhatsApp chat directly with the phone number +91 8885492229. Must work on mobile and desktop (WhatsApp app or WhatsApp Web) with a secure, accessible, theme-matching UI, small entrance animation, analytics event, and a graceful fallback when WhatsApp is not available.
+
+Requirements (do not change existing site layout or theme):
+
+Place a floating chat bubble on the bottom-right of every page by default. On mobile, the bubble should be sticky and above the bottom navigation (if any).
+
+The bubble must visually match the existing dark theme: dark background, silver border, subtle gold glow on hover. Use silver as primary accent.
+
+When clicked/tapped, open the WhatsApp chat to +91 8885492229 using the correct URL scheme for both mobile and desktop:
+
+Primary: https://wa.me/918885492229?text=<<prefill>> (use international number without + or spaces).
+
+Secondary (if desired for apps): whatsapp://send?phone=918885492229&text=<<prefill>>.
+Use https://wa.me/ as the main fallback; it opens WhatsApp Web on desktop and the app on mobile where available.
+
+Prefilled message: include a friendly default such as:
+Hi TwinkleStar! I’m interested in [product name / inquiry]. Please help.
+Allow the builder to dynamically fill [product name / inquiry] if the user opened the chat from a product page. If the builder cannot populate dynamically, use the static default above. URL-encode the text before appending.
+
+Open in a new tab/window (target="_blank" rel="noopener noreferrer") so the current site session is preserved.
+
+Add an accessible label and keyboard focus support (tab index). Use aria-label="Chat with TwinkleStar on WhatsApp" and role="link".
+
+Add a small entrance animation (fade + scale in) and a subtle hover shine; respects prefers-reduced-motion.
+
+Add analytics event on click: event: 'whatsapp_chat_open' with properties {page: currentPath, productId: optional} (use existing analytics method e.g., gtag('event', ...) or window.dataLayer.push(...) depending on the site).
+
+Graceful fallback: if the wa.me URL fails (or if user is on desktop and WhatsApp Web is blocked), show a tiny modal with the phone number and a clickable tel: link and copy-to-clipboard button. The modal text: “Open WhatsApp Web or copy this number to chat: +91 8885492229.”
+
+Privacy note: Do not auto-send any personal data. Only include prefilled message text as above. Log only click events (no personal info).
+
+Option: Add a small toggle in settings/admin to hide the WhatsApp chat button on checkout or other pages. Default: visible on all pages.
