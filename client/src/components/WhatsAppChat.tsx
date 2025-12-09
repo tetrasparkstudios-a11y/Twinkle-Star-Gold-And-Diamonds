@@ -81,21 +81,10 @@ export function WhatsAppChat({ hideOnPaths = [] }: WhatsAppChatProps) {
 
   return (
     <>
-      <button
-        onClick={handleWhatsAppClick}
-        aria-label="Chat with TwinkleStar on WhatsApp"
-        data-testid="button-whatsapp-chat"
+      <div
         className={`
           fixed bottom-6 right-6 z-50
-          w-14 h-14 rounded-full
-          bg-card border-2 border-silver
-          flex items-center justify-center
-          shadow-lg
-          transition-all duration-300 ease-out
-          hover:shadow-[0_0_20px_rgba(212,175,55,0.5)]
-          hover:scale-110
-          active:scale-95
-          focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-background
+          flex items-center gap-0 group
           ${
             isVisible
               ? "opacity-100 translate-y-0"
@@ -110,8 +99,52 @@ export function WhatsAppChat({ hideOnPaths = [] }: WhatsAppChatProps) {
           animationFillMode: "backwards",
         }}
       >
-        <MessageCircle className="w-7 h-7 text-gold" strokeWidth={2} />
-      </button>
+        <div
+          className="
+            flex items-center
+            opacity-0 translate-x-4
+            group-hover:opacity-100 group-hover:translate-x-0
+            transition-all duration-300 ease-out
+            motion-reduce:transition-none
+            pointer-events-none
+          "
+        >
+          <span
+            className="
+              whitespace-nowrap
+              bg-card border border-silver
+              text-foreground text-sm font-medium
+              px-4 py-2.5
+              rounded-l-full
+              shadow-lg
+            "
+            data-testid="text-whatsapp-tooltip"
+          >
+            Need Help? <span className="text-gold">Chat with us</span>
+          </span>
+        </div>
+        
+        <button
+          onClick={handleWhatsAppClick}
+          aria-label="Chat with TwinkleStar on WhatsApp"
+          data-testid="button-whatsapp-chat"
+          className="
+            w-14 h-14 rounded-full
+            bg-card border-2 border-silver
+            flex items-center justify-center
+            shadow-lg
+            transition-all duration-300 ease-out
+            group-hover:shadow-[0_0_20px_rgba(212,175,55,0.5)]
+            group-hover:scale-110
+            active:scale-95
+            focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-background
+            motion-reduce:transition-none
+            relative z-10
+          "
+        >
+          <MessageCircle className="w-7 h-7 text-gold" strokeWidth={2} />
+        </button>
+      </div>
 
       <Dialog open={showFallback} onOpenChange={setShowFallback}>
         <DialogContent className="sm:max-w-md" data-testid="dialog-whatsapp-fallback">
