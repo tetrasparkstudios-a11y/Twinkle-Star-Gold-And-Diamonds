@@ -141,7 +141,7 @@ export default function Admin() {
                 <div className="text-center text-xs text-muted-foreground mt-4">
                   <p>Demo Credentials:</p>
                   <p>Email: admin@twinklestar.com</p>
-                  <p>Password: admin123</p>
+                  <p>Password: TwinkleStar2024!</p>
                 </div>
               </form>
             </CardContent>
@@ -182,7 +182,7 @@ export default function Admin() {
               <p className="text-muted-foreground">Manage your product catalog</p>
             </div>
             <div className="flex gap-4">
-              <Button variant="outline" onClick={() => setIsAuthenticated(false)}>Logout</Button>
+              <Button variant="outline" onClick={handleLogout}>Logout</Button>
               <Button onClick={handleAddNew} className="bg-gold text-black hover:bg-gold/90">
                 <Plus className="mr-2 h-4 w-4" /> Add Product
               </Button>

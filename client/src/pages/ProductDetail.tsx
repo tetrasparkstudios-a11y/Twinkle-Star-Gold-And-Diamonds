@@ -4,13 +4,18 @@ import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Star, Truck, ShieldCheck, RefreshCw, Heart, Share2, MessageCircle, Play } from "lucide-react";
+import { Star, Truck, ShieldCheck, RefreshCw, Heart, Share2, MessageCircle, Play, User } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { ProductZoom } from "@/components/product/ProductZoom";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -254,6 +259,11 @@ export default function ProductDetail() {
           </div>
         </div>
         
+        {/* Reviews Section */}
+        <div className="mt-16">
+          <ReviewsSection productId={product.id} />
+        </div>
+
         {/* WhatsApp Button */}
         <div className="fixed bottom-8 right-8 z-40">
           <a href="https://wa.me/" target="_blank" rel="noreferrer">
@@ -291,5 +301,272 @@ export default function ProductDetail() {
         </DialogContent>
       </Dialog>
     </Layout>
+  );
+}
+
+interface Review {
+  id: number;
+  productId: string;
+  name: string;
+  rating: number;
+  title: string | null;
+  comment: string;
+  isApproved: boolean;
+  createdAt: string;
+}
+
+interface ReviewsData {
+  reviews: Review[];
+  averageRating: number;
+  totalReviews: number;
+}
+
+function ReviewsSection({ productId }: { productId: string }) {
+  const { toast } = useToast();
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    rating: 5,
+    title: "",
+    comment: "",
+    website: "" // honeypot
+  });
+
+  const { data, isLoading } = useQuery<ReviewsData>({
+    queryKey: ['/api/products', productId, 'reviews'],
+  });
+
+  const submitReview = useMutation({
+    mutationFn: async (reviewData: typeof formData) => {
+      return apiRequest("POST", `/api/products/${productId}/reviews`, reviewData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Review Submitted",
+        description: "Thank you! Your review will appear after approval.",
+      });
+      setShowForm(false);
+      setFormData({ name: "", rating: 5, title: "", comment: "", website: "" });
+      queryClient.invalidateQueries({ queryKey: ['/api/products', productId, 'reviews'] });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit review. Please try again.",
+      });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim() || !formData.comment.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please fill in your name and review.",
+      });
+      return;
+    }
+    submitReview.mutate(formData);
+  };
+
+  const averageRating = data?.averageRating || 0;
+  const totalReviews = data?.totalReviews || 0;
+  const reviews = data?.reviews || [];
+
+  return (
+    <div className="border-t border-white/10 pt-12">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+          <h2 className="text-2xl font-display font-bold mb-2">Customer Reviews</h2>
+          <div className="flex items-center gap-3">
+            <div className="flex text-gold">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star 
+                  key={i} 
+                  className={cn(
+                    "h-5 w-5",
+                    i <= Math.round(averageRating) ? "fill-current" : "opacity-30"
+                  )} 
+                />
+              ))}
+            </div>
+            <span className="text-lg font-medium">{averageRating.toFixed(1)}</span>
+            <span className="text-muted-foreground">({totalReviews} reviews)</span>
+          </div>
+        </div>
+        <Button 
+          onClick={() => setShowForm(!showForm)} 
+          className="bg-gold text-black hover:bg-gold/90"
+          data-testid="button-write-review"
+        >
+          Write a Review
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card className="mb-8 bg-card border-white/10">
+          <CardHeader>
+            <CardTitle className="text-lg">Share Your Experience</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Honeypot field - hidden from users */}
+              <div className="hidden" aria-hidden="true">
+                <Label htmlFor="website">Website</Label>
+                <Input 
+                  id="website" 
+                  name="website"
+                  value={formData.website}
+                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reviewName">Your Name</Label>
+                  <Input 
+                    id="reviewName" 
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Enter your name"
+                    required
+                    data-testid="input-review-name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Rating</Label>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, rating: star })}
+                        className="p-1"
+                        data-testid={`button-star-${star}`}
+                      >
+                        <Star 
+                          className={cn(
+                            "h-6 w-6 transition-colors",
+                            star <= formData.rating ? "text-gold fill-gold" : "text-muted-foreground"
+                          )} 
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="reviewTitle">Review Title (Optional)</Label>
+                <Input 
+                  id="reviewTitle" 
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Sum up your experience"
+                  data-testid="input-review-title"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="reviewComment">Your Review</Label>
+                <Textarea 
+                  id="reviewComment" 
+                  value={formData.comment}
+                  onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                  placeholder="Share your experience with this product..."
+                  rows={4}
+                  required
+                  data-testid="input-review-comment"
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <Button 
+                  type="submit" 
+                  className="bg-gold text-black hover:bg-gold/90"
+                  disabled={submitReview.isPending}
+                  data-testid="button-submit-review"
+                >
+                  {submitReview.isPending ? "Submitting..." : "Submit Review"}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowForm(false)}
+                  data-testid="button-cancel-review"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {isLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="animate-pulse bg-secondary/20 rounded-md p-6 space-y-3">
+              <div className="h-4 bg-secondary/40 rounded w-1/4" />
+              <div className="h-3 bg-secondary/40 rounded w-3/4" />
+              <div className="h-3 bg-secondary/40 rounded w-1/2" />
+            </div>
+          ))}
+        </div>
+      ) : reviews.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <User className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <p className="text-lg mb-2">No reviews yet</p>
+          <p className="text-sm">Be the first to share your experience with this product!</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {reviews.map((review) => (
+            <div 
+              key={review.id} 
+              className="border-b border-white/5 pb-6 last:border-0"
+              data-testid={`review-item-${review.id}`}
+            >
+              <div className="flex items-center gap-4 mb-3">
+                <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center">
+                  <span className="text-gold font-medium">{review.name.charAt(0).toUpperCase()}</span>
+                </div>
+                <div>
+                  <p className="font-medium">{review.name}</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex text-gold">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Star 
+                          key={i} 
+                          className={cn(
+                            "h-3 w-3",
+                            i <= review.rating ? "fill-current" : "opacity-30"
+                          )} 
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(review.createdAt).toLocaleDateString('en-IN', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {review.title && (
+                <h4 className="font-medium mb-2">{review.title}</h4>
+              )}
+              <p className="text-muted-foreground text-sm leading-relaxed">{review.comment}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
