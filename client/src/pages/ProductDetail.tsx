@@ -329,7 +329,7 @@ function ReviewsSection({ productId }: { productId: string }) {
     rating: 5,
     title: "",
     comment: "",
-    website: "" // honeypot
+    honeypot: "" // spam protection
   });
 
   const { data, isLoading } = useQuery<ReviewsData>({
@@ -346,7 +346,7 @@ function ReviewsSection({ productId }: { productId: string }) {
         description: "Thank you! Your review will appear after approval.",
       });
       setShowForm(false);
-      setFormData({ name: "", rating: 5, title: "", comment: "", website: "" });
+      setFormData({ name: "", rating: 5, title: "", comment: "", honeypot: "" });
       queryClient.invalidateQueries({ queryKey: ['/api/products', productId, 'reviews'] });
     },
     onError: () => {
@@ -414,12 +414,12 @@ function ReviewsSection({ productId }: { productId: string }) {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Honeypot field - hidden from users */}
               <div className="hidden" aria-hidden="true">
-                <Label htmlFor="website">Website</Label>
+                <Label htmlFor="honeypot">Website</Label>
                 <Input 
-                  id="website" 
-                  name="website"
-                  value={formData.website}
-                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  id="honeypot" 
+                  name="honeypot"
+                  value={formData.honeypot}
+                  onChange={(e) => setFormData({ ...formData, honeypot: e.target.value })}
                   tabIndex={-1}
                   autoComplete="off"
                 />
